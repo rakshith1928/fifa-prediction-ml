@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Data & Model artifacts
+features.csv
+football_model.pkl
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
