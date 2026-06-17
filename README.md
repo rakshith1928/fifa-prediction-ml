@@ -1,257 +1,283 @@
-# FIFA World Cup 2026 Match Predictor
+# 🌍 FIFA World Cup 2026 ⚽ Match Predictor
 
-### 🇬🇧 England vs 🇭🇷 Croatia
+Predicting the **England vs Croatia** World Cup clash using machine learning trained on 49,000+ historical international matches.
 
-A machine learning project that predicts international football match outcomes using Elo Ratings, recent team form, and XGBoost trained on more than **49,000 historical international matches**.
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Dataset](#dataset)
+- [Feature Engineering](#feature-engineering)
+- [Model](#model)
+- [Results](#results)
+- [England vs Croatia](#england-vs-croatia)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [Future Improvements](#future-improvements)
+- [Contributing](#contributing)
+- [Technologies Used](#technologies-used)
 
 ---
 
 ## Overview
 
-This project uses historical international football data to predict the probability of:
+This project applies **XGBoost classification** to predict the outcome of England vs Croatia at the FIFA World Cup 2026 ⚽. It engineers features from over a century of international match data, including Elo ratings, team form, and head-to-head statistics, then trains a multi-class classifier to output win/draw/loss probabilities for any given matchup.
 
-* 🇬🇧 England Win
-* Draw
-* 🇭🇷 Croatia Win
-
-The prediction pipeline combines:
-
-* Elo Ratings
-* Recent Form (Last 5 Matches)
-* Goal Difference Statistics
-* Neutral Venue Information
-* Head-to-Head Statistics
-* XGBoost Classification
-
----
-
-## Sample Prediction
-
-### 🇬🇧 England vs 🇭🇷 Croatia
-
-**Competition:** FIFA World Cup 2026
-
-**Venue:** Arlington, Texas, USA 🇺🇸
-
-**Neutral Venue:** Yes
-
-| Outcome          | Probability |
-| ---------------- | ----------: |
-| 🇬🇧 England Win |      25.00% |
-| Draw             |      31.61% |
-| 🇭🇷 Croatia Win |      43.39% |
-
-**Predicted Result:** 🇭🇷 Croatia
+The pipeline is deliberately time-aware: features are computed using only information available before each match, and the train/test split respects chronological order to simulate real-world prediction.
 
 ---
 
 ## Dataset
 
-International Football Results Dataset
+The dataset is sourced from [martj42/international_results](https://github.com/martj42/international_results).
 
-* 49,425 International Matches
-* 336 National Teams
-* Coverage from 1872–2026
+| Statistic | Value |
+|-----------|-------|
+| Total Matches | 49,425 |
+| National Teams | 336 |
+| Date Range | 1872 - 2026 |
+| Source License | MIT |
 
-Dataset Source:
-
-https://github.com/martj42/international_results
+The raw data is stored in `data/results.csv` and contains columns for date, home team, away team, home score, away score, tournament, and neutral venue flag.
 
 ---
 
 ## Feature Engineering
 
-For every historical match, features are generated using information available before kickoff.
+For each match, features are constructed using only data available before kickoff.
 
-### Elo Features
+### Elo Ratings
 
-| Feature      |
-| ------------ |
-| home_elo     |
-| away_elo     |
-| elo_diff     |
-| abs_elo_diff |
+| Feature | Description |
+|---------|-------------|
+| `home_elo` | Home team Elo rating before the match |
+| `away_elo` | Away team Elo rating before the match |
+| `elo_diff` | Difference in Elo ratings |
+| `abs_elo_diff` | Absolute Elo difference |
 
-### Form Features
+Elo ratings are initialized at 1500 and updated after each match with K=20 using the standard Elo formula.
 
-Based on each team's previous 5 matches.
+### Team Form
 
-| Feature        |
-| -------------- |
-| home_win_rate  |
-| away_win_rate  |
-| home_goal_diff |
-| away_goal_diff |
+Computed from each team's last 5 matches.
 
-### Match Features
+| Feature | Description |
+|---------|-------------|
+| `home_win_rate` | Home team win rate in last 5 matches |
+| `away_win_rate` | Away team win rate in last 5 matches |
+| `home_goal_diff` | Home team average goal difference in last 5 |
+| `away_goal_diff` | Away team average goal difference in last 5 |
 
-| Feature |
-| ------- |
-| neutral |
+### Match Context
 
-### Head-to-Head Features
+| Feature | Description |
+|---------|-------------|
+| `neutral` | Whether the match is at a neutral venue (1) or not (0) |
 
-| Feature          |
-| ---------------- |
-| h2h_home_winrate |
-| h2h_home_gd      |
+### Head-to-Head
 
----
-
-## Machine Learning Pipeline
-
-```text
-Historical Match Results
-          │
-          ▼
-Feature Engineering
-          │
-          ▼
-features.csv
-          │
-          ▼
-XGBoost Training
-          │
-          ▼
-football_model.pkl
-          │
-          ▼
-Future Match Prediction
-```
+| Feature | Description |
+|---------|-------------|
+| `h2h_home_winrate` | Home team win rate in last 5 meetings |
+| `h2h_home_gd` | Home team average goal difference in last 5 meetings |
 
 ---
 
 ## Model
 
-**Algorithm:** XGBoost Classifier
+**Algorithm:** XGBoost Classifier ⚙️ (`multi:softprob` objective)
 
-### Prediction Classes
+**Prediction Classes:**
 
-```text
-0 → First Team Wins
-1 → Draw
-2 → Second Team Wins
-```
+| Class | Meaning |
+|-------|---------|
+| 0 | First team wins |
+| 1 | Draw |
+| 2 | Second team wins |
 
-### Training Strategy
+**Training Configuration:**
 
-* Time-Based Train/Test Split
-* Balanced Class Weights
-* Multi-Class Classification
-* Probability-Based Predictions
+| Parameter | Value |
+|-----------|-------|
+| Estimators | 200 |
+| Max Depth | 5 |
+| Learning Rate | 0.05 |
+| Split | Time-based 80/20 |
+| Class Weights | Balanced (sample_weight) |
 
 ---
 
 ## Results
 
-| Metric   |  Value |
-| -------- | -----: |
-| Accuracy | 55.89% |
-| Matches  | 49,425 |
-| Teams    |    336 |
+### Accuracy
+
+| Metric | Value |
+|--------|-------|
+| Test Accuracy | 55.89% |
+| Training Matches | 39,540 |
+| Test Matches | 9,885 |
+| Total Teams | 336 |
 
 ### Feature Importance
 
-| Rank | Feature        |
-| ---- | -------------- |
-| 1    | elo_diff       |
-| 2    | neutral        |
-| 3    | away_goal_diff |
-| 4    | home_goal_diff |
-| 5    | away_elo       |
+| Rank | Feature | Contribution |
+|------|---------|-------------|
+| 1 | `elo_diff` | Highest predictive power |
+| 2 | `neutral` | Strong venue influence |
+| 3 | `away_goal_diff` | Significant form indicator |
+| 4 | `home_goal_diff` | Significant form indicator |
+| 5 | `away_elo` | Team strength proxy |
 
 ### Key Findings
 
-* Elo Difference was the strongest predictor.
-* Neutral Venue had significant influence on match outcomes.
-* Head-to-Head statistics contributed very little.
-* Time-based validation provided realistic future-match evaluation.
-* Balanced class weighting improved draw prediction.
+- Elo difference is the single strongest predictor of match outcome.
+- Neutral venue signficantly affects prediction (relevant for World Cup matches).
+- Head-to-head statistics contribute minimally compared to broader form and Elo.
+- Time-based validation ensures no data leakage from future matches into training.
+- Balanced class weighting improves recall for the draw class.
+
+---
+
+## England vs Croatia
+
+This project centers on the upcoming **FIFA World Cup 2026** match between **England and Croatia**, a rivalry renewed since their iconic 2018 World Cup semi-final in Moscow where Croatia won 2-1 in extra time.
+
+### Sample Prediction
+
+| Outcome | Probability |
+|---------|-----------:|
+| England Win | 25.00% |
+| Draw | 31.61% |
+| Croatia Win | 43.39% |
+
+**Predicted Result:** Croatia Win 🏆
+
+**Match Details:**
+
+- Competition: FIFA World Cup 2026 🌍
+- Venue: Arlington, Texas, USA
+- Neutral Venue: Yes
+
+### Historical Context
+
+- 2018 World Cup Semi-Final: Croatia 2-1 England (AET)
+- 2020 UEFA Nations League: England 2-1 Croatia, Croatia 1-0 England
+- The teams have faced each other 11 times since their first meeting in 1996.
+- The rivalry spans the World Cup, UEFA Nations League, and European Championship qualifiers.
 
 ---
 
 ## Project Structure
 
-```text
+```
 fifa-world-cup-with-ml/
-
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── pull_request_template.md
+├── assets/
+│   └── README.md
 ├── data/
 │   └── results.csv
-│
 ├── src/
-│   ├── build_dataset.py
-│   ├── build_model.py
-│   ├── features.py
-│   └── predict_match.py
-│
-├── features.csv
-├── football_model.pkl
-└── README.md
+│   ├── build_dataset.py        # Feature engineering pipeline
+│   ├── build_model.py          # Model training and evaluation
+│   ├── features.py             # Elo and form computation
+│   └── predict_match.py        # Match prediction script
+├── .editorconfig
+├── .gitignore
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-## Running the Project
+## Usage
 
-### Generate Features
+### Prerequisites
+
+- Python 3.13+
+- Virtual environment (recommended)
+
+### Installation
 
 ```bash
+git clone https://github.com/yourusername/fifa-world-cup-with-ml.git
+cd fifa-world-cup-with-ml
+python -m venv .venv
+.venv\Scripts\activate       # Windows
+# source .venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+```
+
+### Pipeline
+
+```bash
+# Step 1: Build feature dataset
 python src/build_dataset.py
-```
 
-### Train Model
-
-```bash
+# Step 2: Train the model
 python src/build_model.py
-```
 
-### Predict a Match
-
-```bash
+# Step 3: Predict a match
 python src/predict_match.py
 ```
 
----
+To predict a different match, edit the team names in `src/predict_match.py`:
 
-## Example Teams
-
-🇬🇧 England
-🇭🇷 Croatia
-🇧🇷 Brazil
-🇦🇷 Argentina
-🇫🇷 France
-🇪🇸 Spain
-🇩🇪 Germany
-🇵🇹 Portugal
-🇳🇱 Netherlands
-🇧🇪 Belgium
-🇯🇵 Japan
-🇰🇷 South Korea
+```python
+home_team = "Brazil"
+away_team = "Argentina"
+```
 
 ---
 
 ## Future Improvements
 
-* FIFA Rankings
-* Expected Goals (xG)
-* Tournament Weighting
-* Player Availability Data
-* Hyperparameter Optimization
-* Probability Calibration
+- Integrate FIFA World Rankings alongside Elo
+- Add expected goals (xG) data for advanced form metrics
+- Weight recent matches and tournament matches more heavily
+- Incorporate player availability and injury data
+- Hyperparameter optimization via grid search
+- Probability calibration for sharper predictions
+- Ensemble methods combining XGBoost with Random Forest and LightGBM
+- Web interface for interactive match predictions
+
+---
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
+- Adding new match predictions
+- Improving the model with additional features
+- Enhancing the feature engineering pipeline
+- Bug fixes and documentation
 
 ---
 
 ## Technologies Used
 
-* Python
-* Pandas
-* NumPy
-* Scikit-Learn
-* XGBoost
-* Joblib
+| Tool | Purpose |
+|------|---------|
+| Python 3.13 | Core programming language |
+| Pandas | Data processing and feature engineering |
+| XGBoost | Gradient boosting classification |
+| Scikit-learn | Train/test split, evaluation metrics, class weighting |
+| Joblib | Model serialization |
 
 ---
 
-Built for football analytics, machine learning, and sports prediction.
+## License
 
-🇬🇧 🇭🇷 🇧🇷 🇦🇷 🇫🇷 🇪🇸 🇩🇪 🇵🇹
+This project is open source under the MIT License. See [LICENSE](LICENSE).
+
+---
+
+Built for sports analytics, machine learning, and the beautiful game. ⚽
