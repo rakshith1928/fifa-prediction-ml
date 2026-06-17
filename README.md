@@ -170,7 +170,7 @@ Computed from each team's last **5 matches**.
 
 ---
 
-## 🏴󠁧󠁢󠁥󠁮󠁧󠁿🇭🇷 England vs Croatia
+## ⚔️ England vs Croatia
 
 This project centers on the upcoming **FIFA World Cup 2026** match between **England and Croatia**, a rivalry renewed since their iconic **2018 World Cup semi-final** in Moscow where Croatia won 2-1 in extra time.
 
@@ -180,11 +180,11 @@ This project centers on the upcoming **FIFA World Cup 2026** match between **Eng
 
 | Outcome | Probability |
 |:-------:|:-----------:|
-| 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England Win | 25.00% |
-| 🤝 Draw | 31.61% |
-| 🇭🇷 Croatia Win | **43.39%** |
+| England Win | 25.00% |
+| Draw | 31.61% |
+| Croatia Win | **43.39%** |
 
-**Predicted Result:** 🇭🇷 Croatia Win 🏆
+**Predicted Result:** Croatia Win 🏆
 
 </div>
 
